@@ -24,7 +24,7 @@ function create(req, res){
     res.status(201).json({ data: newOrder });
   }
   
-  // update a single order
+  // update a single order, with one or more dishes
   function update(req, res) {
     const order = res.locals.order;
     const { data: { deliverTo, mobileNumber, status, dishes } = {} } = req.body;
@@ -63,7 +63,7 @@ function list(req, res){
 //----------------------------
 function orderExists(req, res, next) {
     const { orderId } = req.params;
-    const foundOrder = orders.find((order) => order.id === Number(orderId));
+    const foundOrder = orders.find((order) => order.id === orderId);
     if (foundOrder) {
       res.locals.order = foundOrder;
       return next();
@@ -81,6 +81,7 @@ function orderExists(req, res, next) {
       if (data[propertyName]) {
         return next();
       }
+
       const name = (propertyMessageName) ? propertyMessageName : propertyName;
       next({ status: 400, message: `Order must include a ${name}` });
     };
@@ -98,14 +99,14 @@ function orderExists(req, res, next) {
 
   function validDishes(req, res, next) {
 
-      const { data = { dishes } } = req.body;
+      const { data: { dishes } } = req.body;
       if ((Array.isArray(dishes) == false ) || (dishes.length == 0)){
         next({ status: 400, message: `Order must include at least one dish` });
       } else {
            
             for (let i=0; i<dishes.length; i++){
-                if (validQuantity(dishes[i]) === false){
-                    next({ status: 400, message: `Dish ${index} must have a quantity that is an integer greater than 0` });                    
+                if (validQuantity(dishes[i].quantity) === false){
+                    next({ status: 400, message: `Dish ${i} must have a quantity that is an integer greater than 0` });                    
                 }
             }
       }
@@ -131,7 +132,7 @@ module.exports = {
         bodyDataHas("mobileNumber"),
         bodyDataString("mobileNumber"),
         bodyDataHas("status"),
-        bodyDataHas("dishes"),
+        bodyDataHas("dishes", "dish"),
         validDishes,
         create
     ],
@@ -140,7 +141,7 @@ module.exports = {
             bodyDataHas("deliverTo"),
             bodyDataString("deliverTo",),
             bodyDataHas("status"),
-            bodyDataHas("dishes"),
+            bodyDataHas("dishes", "dish"),
             validDishes,
             update
         ],
