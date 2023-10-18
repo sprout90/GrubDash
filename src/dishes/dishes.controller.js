@@ -104,7 +104,7 @@ function dishExists(req, res, next) {
   function validDishId(req, res, next){
     const { data: { id } } =  req.body;
     const { dishId } = req.params;
-      if ((dishId) && (id !== dishId)){
+      if ((id) && (id !== dishId)){
         next({ status: 400, message: `Dish id does not match route id. Dish: ${id}, Route: ${dishId}` });        
       }
       return next();

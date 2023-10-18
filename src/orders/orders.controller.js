@@ -129,12 +129,20 @@ function orderExists(req, res, next) {
      
     }
 
+    // status cannot be empty, missing or not a valid value
     function validStatus(req, res, next){
       const { data: { status } } = req.body;
       const statusList = ["pending", "preparing", "out-for-delivery", "delivered"];
+      const errMessage = `Order must have a status of pending, preparing, out-for-delivery, delivered`
 
-      if ( (!(status)) || (statusList.includes(status === false))){
-        next({ status: 400, message: `Order must have a status of pending, preparing, out-for-delivery, delivered` })
+      // test for empty or missing
+      if ((!(status)) || (status === "")){
+        next({ status: 400, message: errMessage })
+      }     
+
+      // test for invalid
+      if (statusList.includes(status) === false){
+        next({ status: 400, message: errMessage })
       } else {
         next();
       }
@@ -155,7 +163,7 @@ function orderExists(req, res, next) {
     // An order cannot be updated if already delivered.
     function validUpdateOperation(req, res, next){
       const order = res.locals.order;
-      if (order.status !== "delivered"){
+      if (order.status === "delivered"){
         next({ status: 400, message: `A delivered order cannot be changed` })
 
       } else {
@@ -168,7 +176,7 @@ function orderExists(req, res, next) {
   function validOrderId(req, res, next){
     const { data: { id } } =  req.body;
     const { orderId } = req.params;
-      if ((orderId) && (id !== orderId)){
+      if ((id) && (id !== orderId)){
         next({ status: 400, message: `Order id does not match route id. Dish: ${id}, Route: ${orderId}` });        
       }
       return next();
@@ -181,7 +189,6 @@ module.exports = {
         bodyDataString("deliverTo",),
         bodyDataHas("mobileNumber"),
         bodyDataString("mobileNumber"),
-        bodyDataHas("status"),
         bodyDataHas("dishes", "dish"),
         validDishes,
         create
@@ -190,6 +197,8 @@ module.exports = {
     update: [orderExists,
             bodyDataHas("deliverTo"),
             bodyDataString("deliverTo",),
+            bodyDataHas("mobileNumber"),
+            bodyDataString("mobileNumber"),
             bodyDataHas("status"),
             bodyDataHas("dishes", "dish"),
             validDishes,

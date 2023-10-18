@@ -2,6 +2,8 @@ const router = require("express").Router();
 const methodNotAllowed = require("../errors/methodNotAllowed");
 const controller = require("./orders.controller");
 
+//  two routes: /orders, and /orders/:orderId and attach the handlers 
+// (create, read, update, delete, and list) exported from src/orders/orders.controller.js.
 router.route("/:orderId").get(controller.read).put(controller.update).delete(controller.delete).all(methodNotAllowed);
 router.route("/").get(controller.list).post(controller.create).all(methodNotAllowed);
 
