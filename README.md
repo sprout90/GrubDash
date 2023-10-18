@@ -11,4 +11,4 @@ The focus on this exercise was to build-out the create, read, update, delete and
 this exercise is focused on back-end development.  
 
 ## Where Can I See It?
-This is still a work-in-progress. But, I hope to publish a link soon. 
+I hope to publish a link soon. 
