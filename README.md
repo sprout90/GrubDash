@@ -1,13 +1,14 @@
 # GrubDash
 
 ## What is it?
-Advanced React software application to demonstrate hooks, events, side-effects, routing, navigation, state, single responsibility and asynchronous RESTful API calls with Bootstrap styling. 
+RESTful API server using Node and Express that implements CRUDL operations with extensive validation for 2 json objects (orders and dishes). Generic element validators are built to be called on multiple elements. Also, custom field validators are implemented to support specific json element business rules. 
 
 ## Why?
-Provide practical application of real-world React application techniques that are required to support a one-to-many data model using REST, with an interactive study page that allows front and back view of flash cards, in additional to all CRUD capability for Decks and Cards.
+Provide practical application of implementing an Express server that serves up REST API methods using JSON object, and nested array/object data structures. 
 
 ## My Focus
-The focus on this exercise was to build out a fully-functional React application from scratch to support essential Flash card application features with database connectivity. 
+The focus on this exercise was to build-out the create, read, update, delete and list functions. Front-end capabilities are omitted as 
+this exercise is focused on back-end development.  
 
 ## Where Can I See It?
 This is still a work-in-progress. But, I hope to publish a link soon. 
