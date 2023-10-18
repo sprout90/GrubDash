@@ -12,6 +12,8 @@ const nextId = require("../utils/nextId");
 // Create an order
 function create(req, res){
     const { data: { deliverTo, mobileNumber, status, dishes } = {} } = req.body;
+
+    // set order propertieis
     const newOrder = {
       id: nextId(), // retrieve from nextId() function
       deliverTo,
@@ -20,6 +22,7 @@ function create(req, res){
       dishes,
     };
   
+    // add order
     orders.push(newOrder);
     res.status(201).json({ data: newOrder });
   }
@@ -35,6 +38,7 @@ function create(req, res){
     order.status = status;
     order.dishes = dishes;
   
+    // save order
     res.json({ data: order });
   }
 
@@ -67,6 +71,8 @@ function orderExists(req, res, next) {
     const { orderId } = req.params;
     const foundOrder = orders.find((order) => order.id === orderId);
     if (foundOrder) {
+
+      // set locals property to be used later in the route chain
       res.locals.order = foundOrder;
       return next();
     }
@@ -85,6 +91,7 @@ function orderExists(req, res, next) {
         return next();
       }
 
+      // allow for optional 'pretty' message name is passed in
       const name = (propertyMessageName) ? propertyMessageName : propertyName;
       next({ status: 400, message: `Order must include a ${name}` });
     };
@@ -101,6 +108,8 @@ function orderExists(req, res, next) {
     };
   };
 
+  // test for valid dish array defined with the order
+  // must be defined, not 0 length, with valid quantity
   function validDishes(req, res, next) {
 
       const { data: { dishes } } = req.body;
@@ -119,6 +128,7 @@ function orderExists(req, res, next) {
     };
 
 
+    // quantity is valid when defined and greater than zero
     function validQuantity(quantity) {
    
         if ((Number.isInteger(quantity)) && (Number.parseInt(quantity) > 0) ){
