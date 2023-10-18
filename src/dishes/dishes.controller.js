@@ -50,6 +50,8 @@ function list(req, res){
 
 // VALIDATORS
 //----------------------------
+
+// confirm that the dish is defined, and stored
 function dishExists(req, res, next) {
     const { dishId } = req.params;
     const foundDish = dishes.find((dish) => dish.id === dishId);
@@ -60,10 +62,11 @@ function dishExists(req, res, next) {
   
     next({
       status: 404,
-      message: `Dish id not found: ${dishId}`,
+      message: `Dish does not exist: ${dishId}`,
     });
   }
   
+  // generic test for missing element
   function bodyDataHas(propertyName) {
     return function (req, res, next) {
       const { data = {} } = req.body;
@@ -74,6 +77,7 @@ function dishExists(req, res, next) {
     };
   }
 
+  // generic test for empty string
   function bodyDataString(propertyName) {
     return function (req, res, next) {
       const { data = {} } = req.body;
@@ -84,6 +88,7 @@ function dishExists(req, res, next) {
     };
   };
   
+  // price must be an integer, and greater than zero
   function validPrice(req, res, next) {
    
       const { data: { price } } =  req.body;
@@ -94,6 +99,17 @@ function dishExists(req, res, next) {
    
   }
 
+  // The id property isn't required in the body of the request, 
+  // but if it is present, it must match :dishId from the route.
+  function validDishId(req, res, next){
+    const { data: { id } } =  req.body;
+    const { dishId } = req.params;
+      if ((dishId) && (id !== dishId)){
+        next({ status: 400, message: `Dish id does not match route id. Dish: ${id}, Route: ${dishId}` });        
+      }
+      return next();
+  }
+
 module.exports = {
     create: [
         bodyDataHas("name"),
@@ -102,6 +118,7 @@ module.exports = {
         bodyDataString("description"),
         bodyDataHas("price"),
         bodyDataHas("image_url"),
+        bodyDataString("image_url"),
         validPrice,
         create
     ],
@@ -113,7 +130,9 @@ module.exports = {
         bodyDataString("description"),
         bodyDataHas("price"),
         bodyDataHas("image_url"),
+        bodyDataString("image_url"),
         validPrice,        
+        validDishId,
         update
     ],
     list

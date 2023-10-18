@@ -61,6 +61,8 @@ function list(req, res){
 
 // VALIDATORS
 //----------------------------
+
+// confirm the order has been defined, and stored
 function orderExists(req, res, next) {
     const { orderId } = req.params;
     const foundOrder = orders.find((order) => order.id === orderId);
@@ -75,6 +77,7 @@ function orderExists(req, res, next) {
     });
   }
   
+  // generic test for missing element
   function bodyDataHas(propertyName, propertyMessageName) {
     return function (req, res, next) {
       const { data = {} } = req.body;
@@ -87,6 +90,7 @@ function orderExists(req, res, next) {
     };
   };
 
+  // generic test for empty string
   function bodyDataString(propertyName) {
     return function (req, res, next) {
       const { data = {} } = req.body;
@@ -125,6 +129,52 @@ function orderExists(req, res, next) {
      
     }
 
+    function validStatus(req, res, next){
+      const { data: { status } } = req.body;
+      const statusList = ["pending", "preparing", "out-for-delivery", "delivered"];
+
+      if ( (!(status)) || (statusList.includes(status === false))){
+        next({ status: 400, message: `Order must have a status of pending, preparing, out-for-delivery, delivered` })
+      } else {
+        next();
+      }
+    }
+    
+    // An order cannot be deleted unless it is pending. 
+    function validDeleteOperation(req, res, next){
+      const order = res.locals.order;
+      if (order.status !== "pending"){
+        next({ status: 400, message: `An order cannot be deleted unless it is pending` })
+
+      } else {
+        next();
+      }
+    }
+
+
+    // An order cannot be updated if already delivered.
+    function validUpdateOperation(req, res, next){
+      const order = res.locals.order;
+      if (order.status !== "delivered"){
+        next({ status: 400, message: `A delivered order cannot be changed` })
+
+      } else {
+        next();
+      }
+    }
+
+  // The id property isn't required in the body of the request, 
+  // but if it is present, it must match :orderId from the route.
+  function validOrderId(req, res, next){
+    const { data: { id } } =  req.body;
+    const { orderId } = req.params;
+      if ((orderId) && (id !== orderId)){
+        next({ status: 400, message: `Order id does not match route id. Dish: ${id}, Route: ${orderId}` });        
+      }
+      return next();
+  }
+
+
 module.exports = {
     create: [
         bodyDataHas("deliverTo"),
@@ -143,8 +193,15 @@ module.exports = {
             bodyDataHas("status"),
             bodyDataHas("dishes", "dish"),
             validDishes,
+            validStatus,
+            validOrderId,
+            validUpdateOperation,
             update
         ],
-    delete: [orderExists, destroy],
+    delete: [
+      orderExists, 
+      validDeleteOperation, 
+      destroy
+    ],
     list
 } 
